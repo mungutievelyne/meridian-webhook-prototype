@@ -5,7 +5,14 @@ const server = http.createServer((req, res) => {
     console.log(req.method);
     console.log(req.url);
       res.end('Hello!'); //Finish this response and send the text Hello! back to whoever made the request.
-      });
+     
+    
+if (req.method === 'POST') {
+  console.log("Post received successfully");
+}
+    });
 
 server.listen(3000);
+
+
 
