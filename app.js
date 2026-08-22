@@ -21,6 +21,14 @@ req.on('end', () => {
     console.log(data.attendeeId);
     console.log(data.status);
 
+
+    res.statusCode = 200;
+    res.end('Webhook received');
+
+    
+
+    
+
 });
 
 }
