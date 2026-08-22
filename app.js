@@ -1,6 +1,7 @@
 console.log("Hello from meridian-webhook-prototype");
 
 const http = require('http'); //Give me Node's built-in HTTP functionality.
+
 const server = http.createServer((req, res) => {
     console.log(req.method);
     console.log(req.url);
