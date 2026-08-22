@@ -16,14 +16,22 @@ req.on('data', (chunk) => {
 
 req.on('end', () => {
 
-    const data = JSON.parse(body);
+try {
 
-    console.log(data.attendeeId);
-    console.log(data.status);
+        const data = JSON.parse(body);
 
+        console.log(data.attendeeId);
+        console.log(data.status);
 
-    res.statusCode = 200;
-    res.end('Webhook received');
+        res.statusCode = 200;
+        res.end('Webhook received');
+
+    } catch (error) {
+
+        res.statusCode = 400;
+        res.end('Invalid JSON');
+
+    }
 
     
 
