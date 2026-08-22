@@ -13,9 +13,15 @@ req.on('data', (chunk) => {
     body += chunk;
 });
 
-  req.on('end', ( ) => {
-        console.log(body);
-    });
+
+req.on('end', () => {
+
+    const data = JSON.parse(body);
+
+    console.log(data.attendeeId);
+    console.log(data.status);
+
+});
 
 }
  res.end('Hello!'); //Finish this response and send the text Hello! back to whoever made the request.
