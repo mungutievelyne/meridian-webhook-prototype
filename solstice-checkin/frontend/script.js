@@ -33,3 +33,34 @@ async function loadAttendees() {
 }
 
 loadAttendees();
+
+checkInButton.addEventListener("click", async () => {
+  const attendeeId = attendeeIdInput.value.trim();
+
+  if (!attendeeId) {
+    status.textContent = "Please enter an attendee ID.";
+    return;
+  }
+
+  status.textContent = "Printing badge...";
+
+  const response = await fetch("/check-in", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      attendeeId: attendeeId,
+    }),
+  });
+
+  const result = await response.json();
+
+  status.textContent = result.message;
+
+  if (result.success) {
+    attendeeIdInput.value = "";
+
+    await loadAttendees();
+  }
+});
