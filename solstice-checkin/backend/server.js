@@ -1,4 +1,6 @@
 const http = require("http");
+const fs = require("fs");
+const path = require("path");
 
 const attendees = [
   {
@@ -29,77 +31,117 @@ const attendees = [
 ];
 
 function printBadge(attendee) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                success: true,
-                message: `Badge printed for ${attendee.name}`
-            });
-        }, 2000);
-    });
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        success: true,
+        message: `Badge printed for ${attendee.name}`,
+      });
+    }, 2000);
+  });
 }
 
 const server = http.createServer((req, res) => {
+  if (req.method === "GET" && req.url === "/") {
+    const filePath = path.join(__dirname, "../frontend/index.html");
 
+    fs.readFile(filePath, (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.end("Unable to load the page");
+        return;
+      }
 
-    if (req.method === 'GET' && req.url === '/attendees') {
+      res.setHeader("Content-Type", "text/html");
+      res.end(data);
+    });
+  } else if (req.method === "GET" && req.url === "/style.css") {
+    const filePath = path.join(__dirname, "../frontend/style.css");
 
-        res.setHeader('Content-Type', 'application/json');
+    fs.readFile(filePath, (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.end("Unable to load stylesheet");
+        return;
+      }
 
-        res.end(JSON.stringify(attendees));    
-    }
-    else if (req.method === 'POST' && req.url === '/check-in') {
+      res.setHeader("Content-Type", "text/css");
+      res.end(data);
+    });
+  } else if (req.method === "GET" && req.url === "/script.js") {
+    const filePath = path.join(__dirname, "../frontend/script.js");
 
-    let body = '';
+    fs.readFile(filePath, (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.end("Unable to load JavaScript");
+        return;
+      }
 
-    req.on('data', (chunk) => {
-        body += chunk;
+      res.setHeader("Content-Type", "application/javascript");
+      res.end(data);
+    });
+  } else if (req.method === "GET" && req.url === "/attendees") {
+    res.setHeader("Content-Type", "application/json");
+
+    res.end(JSON.stringify(attendees));
+  } else if (req.method === "POST" && req.url === "/check-in") {
+    let body = "";
+
+    req.on("data", (chunk) => {
+      body += chunk;
     });
 
-    req.on('end', async () => {
-        const data = JSON.parse(body);
-        const attendee = attendees.find((person) => person.id === data.attendeeId);
+    req.on("end", async () => {
+      const data = JSON.parse(body);
+      const attendee = attendees.find(
+        (person) => person.id === data.attendeeId,
+      );
 
-        if (!attendee) {
-    res.statusCode = 404;
-    res.setHeader('Content-Type', 'application/json');
+      if (!attendee) {
+        res.statusCode = 404;
+        res.setHeader("Content-Type", "application/json");
 
-    res.end(JSON.stringify({
-        success: false,
-        message: 'Attendee not found'
-    }));
+        res.end(
+          JSON.stringify({
+            success: false,
+            message: "Attendee not found",
+          }),
+        );
 
-    return;
-}
+        return;
+      }
 
-if (attendee.checkedIn) {
-    res.statusCode = 409;
-    res.setHeader('Content-Type', 'application/json');
+      if (attendee.checkedIn) {
+        res.statusCode = 409;
+        res.setHeader("Content-Type", "application/json");
 
-    res.end(JSON.stringify({
-        success: false,
-        message: `${attendee.name} is already checked in`
-    }));
+        res.end(
+          JSON.stringify({
+            success: false,
+            message: `${attendee.name} is already checked in`,
+          }),
+        );
 
-    return;
-}
-const result = await printBadge(attendee);
+        return;
+      }
+      const result = await printBadge(attendee);
 
-if (result.success) {
-    attendee.checkedIn = true;
-}
+      if (result.success) {
+        attendee.checkedIn = true;
+      }
 
-res.setHeader('Content-Type', 'application/json');
+      res.setHeader("Content-Type", "application/json");
 
-res.end(JSON.stringify({
-    success: true,
-    message: result.message,
-    attendee: attendee
-}));
-
+      res.end(
+        JSON.stringify({
+          success: true,
+          message: result.message,
+          attendee: attendee,
+        }),
+      );
     });
-}
-
+  }
 });
 
 server.listen(3000, () => {

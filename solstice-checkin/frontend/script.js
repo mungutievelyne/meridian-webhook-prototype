@@ -4,38 +4,32 @@ const status = document.getElementById("status");
 const attendeeList = document.getElementById("attendeeList");
 
 async function loadAttendees() {
-    const response = await fetch("/attendees");
+  const response = await fetch("/attendees");
 
-    const attendees = await response.json();
+  const attendees = await response.json();
 
-    attendeeList.innerHTML = "";
+  attendeeList.innerHTML = "";
 
-    attendees.forEach((attendee) => {
-        const attendeeElement = document.createElement("div");
+  attendees.forEach((attendee) => {
+    const attendeeElement = document.createElement("div");
 
-        attendeeElement.classList.add("attendee");
+    attendeeElement.classList.add("attendee");
 
-        attendeeElement.innerHTML = `
+    attendeeElement.innerHTML = `
             <div>
                 <strong>${attendee.id}</strong>
                 <span>${attendee.name}</span>
             </div>
 
             <span class="${
-                attendee.checkedIn
-                    ? "status-checked"
-                    : "status-pending"
+              attendee.checkedIn ? "status-checked" : "status-pending"
             }">
-                ${
-                    attendee.checkedIn
-                        ? "✓ Checked In"
-                        : "Not Checked In"
-                }
+                ${attendee.checkedIn ? "✓ Checked In" : "Not Checked In"}
             </span>
         `;
 
-        attendeeList.appendChild(attendeeElement);
-    });
+    attendeeList.appendChild(attendeeElement);
+  });
 }
 
 loadAttendees();
