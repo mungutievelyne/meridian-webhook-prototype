@@ -15,18 +15,30 @@ async function loadAttendees() {
 
     attendeeElement.classList.add("attendee");
 
-    attendeeElement.innerHTML = `
-            <div>
-                <strong>${attendee.id}</strong>
-                <span>${attendee.name}</span>
-            </div>
+    let statusText = "";
+    let statusClass = "";
 
-            <span class="${
-              attendee.checkedIn ? "status-checked" : "status-pending"
-            }">
-                ${attendee.checkedIn ? "✓ Checked In" : "Not Checked In"}
-            </span>
-        `;
+    if (attendee.status === "CHECKED_IN") {
+      statusText = "✓ Checked In";
+      statusClass = "status-checked";
+    } else if (attendee.status === "PENDING") {
+      statusText = "⏳ Printing...";
+      statusClass = "status-pending";
+    } else {
+      statusText = "Not Checked In";
+      statusClass = "status-pending";
+    }
+
+    attendeeElement.innerHTML = `
+      <div>
+        <strong>${attendee.id}</strong>
+        <span>${attendee.name}</span>
+      </div>
+
+      <span class="${statusClass}">
+        ${statusText}
+      </span>
+    `;
 
     attendeeList.appendChild(attendeeElement);
   });
@@ -42,7 +54,7 @@ checkInButton.addEventListener("click", async () => {
     return;
   }
 
-  status.textContent = "Printing badge...";
+  status.textContent = "Sending print request...";
 
   const response = await fetch("/check-in", {
     method: "POST",
@@ -60,7 +72,9 @@ checkInButton.addEventListener("click", async () => {
 
   if (result.success) {
     attendeeIdInput.value = "";
-
     await loadAttendees();
   }
 });
+
+// Check for status changes every second
+setInterval(loadAttendees, 1000);
