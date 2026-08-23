@@ -46,8 +46,34 @@ const server = http.createServer((req, res) => {
 
         res.setHeader('Content-Type', 'application/json');
 
-        res.end(JSON.stringify(attendees));
+        res.end(JSON.stringify(attendees));    
     }
+    else if (req.method === 'POST' && req.url === '/check-in') {
+
+    let body = '';
+
+    req.on('data', (chunk) => {
+        body += chunk;
+    });
+
+    req.on('end', () => {
+        const data = JSON.parse(body);
+        const attendee = attendees.find((person) => person.id === data.attendeeId);
+
+        if (!attendee) {
+    res.statusCode = 404;
+    res.setHeader('Content-Type', 'application/json');
+
+    res.end(JSON.stringify({
+        success: false,
+        message: 'Attendee not found'
+    }));
+
+    return;
+}
+    });
+}
+
 });
 
 server.listen(3000, () => {
