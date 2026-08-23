@@ -56,7 +56,7 @@ const server = http.createServer((req, res) => {
         body += chunk;
     });
 
-    req.on('end', () => {
+    req.on('end', async () => {
         const data = JSON.parse(body);
         const attendee = attendees.find((person) => person.id === data.attendeeId);
 
@@ -71,6 +71,32 @@ const server = http.createServer((req, res) => {
 
     return;
 }
+
+if (attendee.checkedIn) {
+    res.statusCode = 409;
+    res.setHeader('Content-Type', 'application/json');
+
+    res.end(JSON.stringify({
+        success: false,
+        message: `${attendee.name} is already checked in`
+    }));
+
+    return;
+}
+const result = await printBadge(attendee);
+
+if (result.success) {
+    attendee.checkedIn = true;
+}
+
+res.setHeader('Content-Type', 'application/json');
+
+res.end(JSON.stringify({
+    success: true,
+    message: result.message,
+    attendee: attendee
+}));
+
     });
 }
 
